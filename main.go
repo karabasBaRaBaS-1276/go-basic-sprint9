@@ -2,14 +2,16 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"runtime"
 	"sync"
 )
 
 const (
-	SIZE   = 1000
-	CHUNKS = 8
+	SIZE              = 1_002
+	CHUNKS            = 8
+	MIN_PARALLEL_SIZE = 1000 // Минимальный размер для параллельной обработки
 )
 
 // generateRandomElements generates random elements.
@@ -19,12 +21,14 @@ func generateRandomElements(size int) []int {
 		return result
 	}
 	workers := runtime.NumCPU() // Количество доступных CPU
-	if (size < 100) || (workers == 1) {
+	if (size < MIN_PARALLEL_SIZE) || (workers == 1) {
+		log.Printf("Генерим элементы в один поток\n")
 		for i := 0; i < size; i++ {
 			result[i] = rand.Int()
 		}
 	} else {
 		// генерим значения в несколько потоков
+		log.Printf("Кол-во потоков для генерации: %d\n", workers)
 		var wg sync.WaitGroup
 		wg.Add(workers)
 		for w := 0; w < workers; w++ {
@@ -36,7 +40,7 @@ func generateRandomElements(size int) []int {
 				if worker == workers-1 { // последний
 					end = size
 				}
-				fmt.Printf("Генерим с %d по %d элементы\n", start, end)
+				log.Printf("Генерим с %d по %d элементы\n", start, end)
 				for i := start; i < end; i++ {
 					result[i] = rand.Int()
 				}
