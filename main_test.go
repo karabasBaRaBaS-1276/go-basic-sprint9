@@ -37,3 +37,101 @@ func TestGenerateRandomElements_BigSize(t *testing.T) {
 		assert.NotEmpty(t, value, "Ожидаем непустое значение")
 	}
 }
+
+func TestMaximum_EmptySlice(t *testing.T) {
+	// Arange
+	data := make([]int, 0)
+	// Acc
+	result := maximum(data)
+	// Assert
+	assert.Equal(t, 0, result, "Ожидаем 0 на нулевом слайсе")
+}
+
+func TestMaximum_Success(t *testing.T) {
+	type args struct {
+		data []int
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{
+			name: "Отрицательное число",
+			args: args{
+				data: []int{-789, -200, -100},
+			},
+			want: -100,
+		},
+		{
+			name: "Положительное число",
+			args: args{
+				data: []int{-200, 1060, 45},
+			},
+			want: 1060,
+		},
+		{
+			name: "Число 0",
+			args: args{
+				data: []int{-200, -1060, 0},
+			},
+			want: 0,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := maximum(tt.args.data); got != tt.want {
+				t.Errorf("maximum() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMaxChunks_EmptySlice(t *testing.T) {
+	// Arange
+	data := make([]int, 0)
+	// Acc
+	result := maxChunks(data)
+	// Assert
+	assert.Equal(t, 0, result, "Ожидаем 0 на нулевом слайсе")
+}
+
+func TestMaxChunks_Success(t *testing.T) {
+	type args struct {
+		data []int
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{
+			name: "Отрицательное число",
+			args: args{
+				data: []int{-789, -200, -100},
+			},
+			want: -100,
+		},
+		{
+			name: "Положительное число",
+			args: args{
+				data: []int{-200, 1060, 45},
+			},
+			want: 1060,
+		},
+		{
+			name: "Число 0",
+			args: args{
+				data: []int{-200, -1060, 0},
+			},
+			want: 0,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := maxChunks(tt.args.data); got != tt.want {
+				t.Errorf("maximum() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
