@@ -34,7 +34,7 @@ func generateRandomElements(size int) []int {
 		var wg sync.WaitGroup
 		wg.Add(workers)
 		for w := 0; w < workers; w++ {
-			go func(worker int) {
+			go func(worker int, data []int) {
 				defer wg.Done()
 				// Каждый worker обрабатывает свою часть слайса
 				start := size / workers * worker
@@ -44,9 +44,9 @@ func generateRandomElements(size int) []int {
 				}
 				log.Printf("Генерим с %d по %d элементы\n", start, end)
 				for i := start; i < end; i++ {
-					result[i] = rand.Int()
+					data[i] = rand.Int()
 				}
-			}(w)
+			}(w, result)
 		}
 		wg.Wait()
 	}
@@ -78,39 +78,41 @@ func maxChunks(data []int) int {
 	size := len(data)
 	chunkMaxValues := make([]int, CHUNKS)
 
-	var wg sync.WaitGroup
+	// --- запускаем горутину, которая будет из канала вычитывать
+	//     значение и складывать в слайс для окончательной обработки
+	ch := make(chan int, 1) // буфер = 1
 
-	wg.Add(workers)
-	for w := 0; w < workers; w++ {
-		go func(worker int) {
-			defer wg.Done()
-			// Каждый worker обрабатывает свою часть слайса
-			start := size / workers * worker
-			end := size / workers * (worker + 1)
-			if worker == workers-1 { // последний
-				end = size
-			}
-
-			result := data[start]
-			for i := start + 1; i < end; i++ {
-				if result < data[i] {
-					result = data[i]
-				}
-			}
-
-			chunkMaxValues[worker] = result
-		}(w)
-	}
-	wg.Wait()
-
-	result := chunkMaxValues[0]
-	for i := 1; i < len(chunkMaxValues); i++ {
-		if result < chunkMaxValues[i] {
-			result = chunkMaxValues[i]
+	var wg0 sync.WaitGroup
+	wg0.Add(1)
+	go func(chunkMaxValues []int, ch <-chan int) {
+		defer wg0.Done()
+		i := 0
+		for maxValue := range ch {
+			chunkMaxValues[i] = maxValue
+			i++
 		}
-	}
+	}(chunkMaxValues, ch)
 
-	return result
+	// --- Запускаем горутины для поиска максимума в составных частях
+	var wg1 sync.WaitGroup
+	wg1.Add(workers)
+	for w := 0; w < workers; w++ {
+		start := size / workers * w
+		end := size / workers * (w + 1)
+		if w == workers-1 { // последний
+			end = size
+		}
+
+		go func(dataChunck []int, ch chan<- int) {
+			defer wg1.Done()
+			ch <- maximum(dataChunck)
+		}(data[start:end], ch)
+	}
+	wg1.Wait() // Ждем окончания работы составных частей
+	close(ch)  // закрываем канал
+	wg0.Wait() // Ждем слайс для финальной обработки
+
+	return maximum(chunkMaxValues)
 }
 
 func main() {

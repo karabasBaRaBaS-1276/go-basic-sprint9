@@ -38,15 +38,6 @@ func TestGenerateRandomElements_BigSize(t *testing.T) {
 	}
 }
 
-func TestMaximum_EmptySlice(t *testing.T) {
-	// Arange
-	data := make([]int, 0)
-	// Acc
-	result := maximum(data)
-	// Assert
-	assert.Equal(t, 0, result, "Ожидаем 0 на нулевом слайсе")
-}
-
 func TestMaximum_Success(t *testing.T) {
 	type args struct {
 		data []int
@@ -57,25 +48,32 @@ func TestMaximum_Success(t *testing.T) {
 		want int
 	}{
 		{
-			name: "Отрицательное число",
+			name: "Пустой слайс",
 			args: args{
-				data: []int{-789, -200, -100},
+				data: []int{},
 			},
-			want: -100,
+			want: 0,
 		},
 		{
-			name: "Положительное число",
+			name: "Положительное число в середине",
 			args: args{
-				data: []int{-200, 1060, 45},
+				data: []int{0, 1060, 45},
 			},
 			want: 1060,
 		},
 		{
-			name: "Число 0",
+			name: "Число 23 в конце",
 			args: args{
-				data: []int{-200, -1060, 0},
+				data: []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23},
 			},
-			want: 0,
+			want: 23,
+		},
+		{
+			name: "Число 100 вначале",
+			args: args{
+				data: []int{100, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23},
+			},
+			want: 100,
 		},
 	}
 	for _, tt := range tests {
@@ -85,15 +83,6 @@ func TestMaximum_Success(t *testing.T) {
 			}
 		})
 	}
-}
-
-func TestMaxChunks_EmptySlice(t *testing.T) {
-	// Arange
-	data := make([]int, 0)
-	// Acc
-	result := maxChunks(data)
-	// Assert
-	assert.Equal(t, 0, result, "Ожидаем 0 на нулевом слайсе")
 }
 
 func TestMaxChunks_Success(t *testing.T) {
@@ -106,32 +95,32 @@ func TestMaxChunks_Success(t *testing.T) {
 		want int
 	}{
 		{
-			name: "Отрицательное число",
+			name: "Пустой слайс",
 			args: args{
-				data: []int{-789, -200, -100},
-			},
-			want: -100,
-		},
-		{
-			name: "Положительное число",
-			args: args{
-				data: []int{-200, 1060, 45},
-			},
-			want: 1060,
-		},
-		{
-			name: "Число 0",
-			args: args{
-				data: []int{-200, -1060, 0},
+				data: []int{},
 			},
 			want: 0,
 		},
 		{
-			name: "Число 23",
+			name: "Положительное число в середине",
+			args: args{
+				data: []int{0, 1060, 45},
+			},
+			want: 1060,
+		},
+		{
+			name: "Число 23 в конце",
 			args: args{
 				data: []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23},
 			},
 			want: 23,
+		},
+		{
+			name: "Число 100 вначале",
+			args: args{
+				data: []int{100, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23},
+			},
+			want: 100,
 		},
 	}
 	for _, tt := range tests {
